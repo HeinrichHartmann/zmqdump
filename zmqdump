@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+#
+#
+#
+#
+#
+
+import zmq
+import sys
+import time
+
+# GLOBALS
+sock_type = None
+address   = ""
+
+socket = None
+
+
+def main():
+    parse_args()
+    init_socket()
+    listen()
+
+
+def parse_args():
+    global sock_type
+    global address
+
+    if len(sys.argv) < 3:
+        raise ValueError("Usage: listen.py type address")
+
+    sock_type = sys.argv[1]
+    address = sys.argv[2]
+
+
+def init_socket():
+    global socket
+
+    if sock_type == "SUB":
+        socket = zmq.Context().socket(zmq.SUB)
+        socket.setsockopt(zmq.SUBSCRIBE, "")
+
+    elif sock_type == "PULL":
+        socket = zmq.Context().socket(zmq.PULL)
+
+    else:
+        raise ValueError("Socket Type %s not supported." % sock_type)
+
+    socket.connect(address)
+
+
+def listen():
+    while (True):
+        print time.strftime("%H:%M:%S"), "-",socket.recv_string()
+
+
+if __name__ == "__main__":
+    main()
