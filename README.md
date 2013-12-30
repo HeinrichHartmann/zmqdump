@@ -33,7 +33,7 @@ The options are as follows:
   
 * The __endpoint__ is a string consiting of two parts:
  
-        __endpoint__ = transport://address
+        endpoint = transport://address
 
   The __transport__ part specifies the underlying transport protocol
   and can be one of the following options: "inproc", "ipc", "tcp",
