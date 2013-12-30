@@ -12,12 +12,10 @@ zmqdump - dump zmq messages on a socket
 
 The zmqdump utility is used to make zmq socket communication available
 on the unix shell. It can be used to listen to messages on SUB and
-PULL sockets and to send messages out via PUB, PUSH sockets. It mimics
-the functionality an syntax of the nc (or netcat) BSD-tool.
+PULL sockets and to send messages out via PUB, PUSH sockets. 
 
-The default behavior will dump all revceived messages on `stdout` all
-lines(!) received on `stdin` will be sent out as string messages (it
-the socket type supports sending messages).
+The default behavior will dump all revceived messages on `stdout`; all
+lines(!) received on `stdin` will be sent out as string messages.
 
 Common uses include:  
 - network testing  
