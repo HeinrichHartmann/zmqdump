@@ -70,8 +70,12 @@ Capitalize all recieved messages
 
     zmqdump -b PULL $IN_EP | sed -u 's/[^ _-]*/\u&/g'
 
+Remark: The `-u` switch turns off buffering of `stdin/stdout` it is
+also used in the python invocation.
+
 Keep this running and open another terminal. Execute
 
     zmqdump PUSH $IN_EP
 
 and start typing.
+
