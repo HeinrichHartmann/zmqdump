@@ -1,6 +1,7 @@
 import unittest
 
 # use symlink in test directory
+# ln -s ../zmqdump zmqdump.py
 from zmqdump import *
 
 class TestArgParse(unittest.TestCase):
@@ -8,8 +9,7 @@ class TestArgParse(unittest.TestCase):
     parser = None
 
     def setUp(self):
-        zdp = Zmqdump()
-        self.parser = zdp.parser
+        self.parser = setup_parser()
 
     def tearDown(self):
         pass

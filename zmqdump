@@ -2,27 +2,32 @@
 #
 # zmqdump - dump zmq messages on a socket
 #
-# https://github.com/HeinrichHartmann/zmqdump
-#
 # @author: Heinrich Hartmann <derhein@gmail.com>
 #
+# https://github.com/HeinrichHartmann/zmqdump
+#
 # License: GPLv2
+#
 
 import argparse
-import sys
 import time
+import sys
 import zmq
 
 DEBUG = 0
 
 def main():
+    """
+    zmqdump command line script
+    """
+    
     global DEBUG
 
-    parser = setupParser()
+    parser = setup_parser()
     conf = parser.parse_args()
 
     if (conf.verbose):
-        DEBUG = 10;
+        DEBUG = 10
 
     zdp = Zmqdump(conf)
     zdp.loop()
@@ -34,28 +39,80 @@ class Zmqdump:
     socket_type = None
 
     # Does the socket receive or send messages?
-    isTalking = False;
+    is_talking = False
 
 
     def __init__(self, conf):
-        self.setSocket(conf.socket_type)
+        """
+        Constructor
 
-        self.setHwm(conf.hwm)
-        self.setPattern(conf.pattern)
+        Configuration options are translated into socket
+        configuration.
+        """
+
+        self.setup_socket(conf.socket_type)
+
+        self.set_hwm(conf.hwm)
+
+        self.set_pattern(conf.pattern)
 
         method = "bind" if conf.bind else "connect"
-        self.initConnection(method, conf.endpoint)
+        self.init_connection(method, conf.endpoint)
 
         time.sleep(conf.delay * 0.001)
 
 
-    def setPattern(self, pattern):
+    def setup_socket(self, socket_type):
+        """
+        Create context and socket obejcts.
+        """
+
+        if (DEBUG): print "Setting up %s-socket" % (socket_type)
+
+        self.context = zmq.Context()
+
+        if (socket_type == "PUB"):
+            self.socket_type = "PUB"
+            self.socket = self.context.socket(zmq.PUB)
+            self.is_talking = True
+
+        elif (socket_type == "SUB"):
+            self.socket_type = "SUB"
+            self.socket = self.context.socket(zmq.SUB)
+            self.is_talking = False
+
+        elif (socket_type == "PUSH"):
+            self.socket_type = "PUSH"
+            self.socket = self.context.socket(zmq.PUSH)
+            self.is_talking = True
+
+        elif (socket_type == "PULL"):
+            self.socket_type = "PULL"
+            self.socket = self.context.socket(zmq.PULL)
+            self.is_talking = False
+
+        else:
+            raise Exception("socket type not supported: " + socket_type)
+
+
+    def set_hwm(self, hwm):
+        assert(type(hwm) is int)
+        if (DEBUG): print "Setting hwm to " + str(hwm)
+
+        self.socket.setsockopt(zmq.RCVHWM, hwm)
+        self.socket.setsockopt(zmq.SNDHWM, hwm)
+
+
+    def set_pattern(self, pattern):
         if (DEBUG): print "Setting subscription pattern '%s'" % pattern
         if (self.socket_type == "SUB"):
             self.socket.setsockopt(zmq.SUBSCRIBE, pattern)
 
 
-    def initConnection(self, method, endpoint):
+    def init_connection(self, method, endpoint):
+        """
+        Bind/Connect socket
+        """
         assert(method in ["bind", "connect"])
         assert(type(endpoint) is str and "://" in endpoint)
         if (DEBUG): print "%s socket to %s" % (method, endpoint)
@@ -66,51 +123,17 @@ class Zmqdump:
             self.socket.connect(endpoint)
 
 
-    def setHwm(self, hwm):
-        assert(type(hwm) is int)
-        if (DEBUG): print "Setting hwm to " + str(hwm)
-
-        self.socket.setsockopt(zmq.RCVHWM, hwm)
-        self.socket.setsockopt(zmq.SNDHWM, hwm)
-
-
-    def setSocket(self, socket_type):
-        if (DEBUG): print "Setup %s-socket" % (socket_type)
-
-        self.context = zmq.Context()
-
-        if (socket_type == "PUB"):
-            self.socket_type = "PUB"
-            self.socket = self.context.socket(zmq.PUB)
-            self.isTalking = True;
-
-        elif (socket_type == "SUB"):
-            self.socket_type = "SUB"
-            self.socket = self.context.socket(zmq.SUB)
-            self.isTalking = False;
-
-        elif (socket_type == "PUSH"):
-            self.socket_type = "PUSH"
-            self.socket = self.context.socket(zmq.PUSH)
-            self.isTalking = True;
-
-        elif (socket_type == "PULL"):
-            self.socket_type = "PULL"
-            self.socket = self.context.socket(zmq.PULL)
-            self.isTalking = False;
-
-        else:
-            raise Exception("socket type not supported: " + socket_type)
-
-
     def loop(self):
-        if (self.isTalking): 
-            self.sendLoop()
+        """
+        Start listning/writing to socket.
+        """
+        if (self.is_talking): 
+            self.send_loop()
         else:
-            self.printLoop()
+            self.print_loop()
 
 
-    def printLoop(self):
+    def print_loop(self):
         if (DEBUG): print "Listening on socket."
         while (True):
             try:
@@ -119,7 +142,7 @@ class Zmqdump:
                 break
 
 
-    def sendLoop(self):
+    def send_loop(self):
         if (DEBUG): print "Writing to socket."
         for line in sys.stdin:
             try:
@@ -128,7 +151,7 @@ class Zmqdump:
                 break
 
         
-def setupParser():
+def setup_parser():
     parser = argparse.ArgumentParser(
         prog = "zmqdump",
         description = "dump zmq messages on a socket"
