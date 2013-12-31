@@ -5,7 +5,7 @@ zmqdump - dump zmq messages on a socket
 
 ### SYNOPSIS
 
-    zmqdump [options] [socket_type] endpoint
+    zmqdump [options] socket_type endpoint
 
 
 ### DESCRIPTION
