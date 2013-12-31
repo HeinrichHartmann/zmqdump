@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python -u
 #
 # zmqdump - dump zmq messages on a socket
 #
@@ -7,6 +7,12 @@
 # https://github.com/HeinrichHartmann/zmqdump
 #
 # License: GPLv2
+#
+# REMARK:
+# It is important to disable stdin/stdout buffers when using 
+# this script in pipes to get the expected results.
+# Therefore python is called with the -u option. 
+# See: http://stackoverflow.com/questions/9756137/immediate-piping-with-python
 #
 
 import argparse
@@ -31,6 +37,8 @@ def main():
 
     zdp = Zmqdump(conf)
     zdp.loop()
+
+    zdp.destroy()
 
 class Zmqdump:
     conf = None
@@ -137,18 +145,27 @@ class Zmqdump:
         if (DEBUG): print "Listening on socket."
         while (True):
             try:
-                sys.stdout.write(self.socket.recv())
+                sys.stdout.write(self.socket.recv_string())
             except KeyboardInterrupt:
+                sys.stdout.flush()
                 break
 
 
     def send_loop(self):
         if (DEBUG): print "Writing to socket."
-        for line in sys.stdin:
+        while (True):
             try:
+                line = sys.stdin.readline()
+                if not line: 
+                    break
                 self.socket.send(line)
             except KeyboardInterrupt:
                 break
+    
+    def destroy(self):
+        self.socket.close()
+        self.context.term()
+        self.context.destroy()
 
         
 def setup_parser():

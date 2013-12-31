@@ -66,7 +66,12 @@ Publish output of a script on socket:
 
     ./script | zmqdump --bind PUSH tpc://*:5000
 
-Capitalize all messages in a pipeline
+Capitalize all recieved messages
 
-    zmqdump PULL $IN_EP | sed 's/[^ _-]*/\u&/g' | zmqdump PUSH $OUT_EP
+    zmqdump -b PULL $IN_EP | sed -u 's/[^ _-]*/\u&/g'
 
+Keep this running and open another terminal. Execute
+
+    zmqdump PUSH $IN_EP
+
+and start typing.
