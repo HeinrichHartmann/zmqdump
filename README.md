@@ -26,8 +26,7 @@ The options are as follows:
 
 * The __socket_type__ can be one of the following options "PUB",
   "SUB", "PUSH", "PULL" (tbd: "PAIR", "REQ", "REP", "ROUTER",
-  "DEALER"). If no __socket_type__ is provided, the "SUB" socket will
-  be used.
+  "DEALER").
   
 * The __endpoint__ is a string consiting of two parts:
  
