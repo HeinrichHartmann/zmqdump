@@ -68,5 +68,6 @@ Publish output of a script on socket:
 
 Capitalize all messages in a pipeline
 
-    zmqdump PULL $IN_EP | sed 's/[^ _-]*/\u&/g' | zmqdump PUSH $OUT_EP
+    zmqdump PULL $IN | sed -u 's/[^ _-]*/\u&/g' | zmqdump PUSH $OUT
 
+Remark: The `-u` switch turns off buffering of `stdin/stdout` it is also used in the python invocation.
