@@ -20,6 +20,9 @@ import time
 import sys
 import zmq
 
+VERSION = "0.1"
+DATE= "2014-02-09"
+
 DEBUG = 0
 
 def main():
@@ -183,14 +186,14 @@ def setup_parser():
 
     parser.add_argument(
         "endpoint", 
-        help="endpoint to listen on messages (tcp://127.0.0.1)",
+        help="endpoint to listen on messages, e.g. 'tcp://127.0.0.1:5000'",
         type = str
     )
     
     parser.add_argument(
         "-d", "--delay", 
         help = "initial delay before sendig out messages",
-        dest = "delay", type = int, default = 0
+        dest = "delay", type = int, default = 100
     )
     
     parser.add_argument(
@@ -217,6 +220,12 @@ def setup_parser():
         help="print additional logging information",
         dest="verbose", default = False,
         action = "store_true"
+    )
+
+    parser.add_argument(
+        "--version",
+        action='version',
+        version='%(prog)s v.' + VERSION
     )
 
     return parser
